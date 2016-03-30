@@ -1,5 +1,27 @@
 var myApp = angular.module('myApp',[])
 
-myApp.controller('MyController', function ($scope) {
+myApp.service('HistoryService' , function ($http) {
+	var baseUrl = "http://localhost:8080/"
+
+	this.saveWord = function (newWord) {
+		var url = baseUrl + "saveCurrent"
+		return $http.post(url, {"word": newWord})
+	}
+})
+
+myApp.controller('MyController', function ($scope, HistoryService) {
 	$scope.newWord = 'cat'
+
+	$scope.saveThisWord = function () {
+		HistoryService.saveWord( $scope.newWord )
+		.then(saveSuccess, error)
+	}
+
+	function saveSuccess (json) {
+		console.log(json)
+	}
+
+	function error (json) {
+		console.log(json)
+	}
 })
