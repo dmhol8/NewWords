@@ -1,6 +1,16 @@
 var myApp = angular.module('myApp',[])
 
-myApp.service('HistoryService' , function ($http) {
+myApp.service('GifService', function ($http) {
+	var baseUrl = "https://api.giphy.com/v1/gifs/"
+	var apiKey = "dc6zaTOxFJmzC"
+
+	this.getGifs = function (query) {
+		var url = baseUrl + "search?q=" + query + "&api_key=" + apiKey
+		return $http.get(url)
+	}
+})
+
+myApp.service('HistoryService', function ($http) {
 	var baseUrl = "http://localhost:8080/"
 
 	this.saveWord = function (newWord) {
@@ -14,7 +24,7 @@ myApp.service('HistoryService' , function ($http) {
 	}
 })
 
-myApp.controller('MyController', function ($scope, HistoryService) {
+myApp.controller('MyController', function ($scope, HistoryService, GifService) {
 	$scope.newWord = 'cat'
 	$scope.words = []
 
@@ -26,6 +36,19 @@ myApp.controller('MyController', function ($scope, HistoryService) {
 	$scope.getSavedWords = function () {
 		HistoryService.getSaved()
 		.then(loadSuccess, error)
+	}
+
+	$scope.showGifs = function ($event) {
+		GifService.getGifs( $event.currentTarget.innerHTML )
+		.then(gifSuccess, error)
+	}
+
+	function gifSuccess (json) {
+		if (json.data.data[0]) {
+			$scope.gifUrl = json.data.data[0].images.fixed_height.url
+		} else {
+			$scope.gifUrl = "http://goo.gl/tioFyj"
+		}
 	}
 
 	function loadSuccess (json) {
